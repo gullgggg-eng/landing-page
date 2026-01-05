@@ -22,7 +22,7 @@ export default function LandingPage() {
     };
 
     try {
-      const res = await fetch("api.web3forms.com", {
+      const res = await fetch("https://api.web3forms.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
