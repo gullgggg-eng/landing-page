@@ -3,29 +3,36 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { sendEmail } from "./actions";
 
 export default function LandingPage() {
-  const [status, setStatus] = useState("");
+  const [result, setResult] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setStatus("Отправка...");
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setResult("Sending....");
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(event.currentTarget);
+    // Твой ключ доступа
+    formData.append("access_key", "063b7fa1-296a-497a-b9c2-6d9259464e42");
 
     try {
-      const result = await sendEmail(formData); // Вызов серверной функции
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (result.success) {
-        setStatus("Заявка успешно отправлена!");
-        (e.target as HTMLFormElement).reset();
+      const data = await response.json();
+
+      if (data.success) {
+        setResult("Form Submitted Successfully");
+        (event.target as HTMLFormElement).reset();
       } else {
-        setStatus("Ошибка: " + result.message);
+        console.log("Error", data);
+        setResult(data.message || "Error");
       }
-    } catch {
-      // Теперь это сработает только если упал сервер Vercel
-      setStatus("Успешно (имитация)");
+    } catch (error) {
+      console.log("Network Error", error);
+      setResult("Network Error. Check your internet or AdBlock.");
     }
   };
 
@@ -54,19 +61,8 @@ export default function LandingPage() {
             <span className="text-blue-600 underline">продают</span>
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10">
-            Next.js 15 + Tailwind CSS. Профессиональная разработка для вашего
-            бизнеса.
+            Next.js 15 + Tailwind CSS. Профессиональная разработка.
           </p>
-          <Button
-            onClick={() =>
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-7 text-xl rounded-full transition-all hover:scale-105"
-          >
-            Начать проект
-          </Button>
         </section>
 
         <section id="contact" className="py-20 px-6 max-w-xl mx-auto w-full">
@@ -74,16 +70,18 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-center mb-8 text-slate-900">
               Оставить заявку
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+
+            <form onSubmit={onSubmit} className="space-y-4">
               <Input
+                type="text"
                 name="name"
                 placeholder="Ваше имя"
                 required
                 className="h-14 bg-white rounded-xl"
               />
               <Input
-                name="email"
                 type="email"
+                name="email"
                 placeholder="Ваш Email"
                 required
                 className="h-14 bg-white rounded-xl"
@@ -91,18 +89,20 @@ export default function LandingPage() {
               <Textarea
                 name="message"
                 placeholder="Опишите задачу"
-                className="min-h-30 bg-white rounded-xl"
                 required
+                className="min-h-30 bg-white rounded-xl"
               />
+
               <Button
                 type="submit"
                 className="w-full bg-slate-900 text-white py-8 rounded-xl hover:bg-slate-800 text-lg font-bold"
               >
-                {status === "Отправка..." ? "Отправляем..." : "Отправить"}
+                Отправить заявку
               </Button>
-              {status && (
+
+              {result && (
                 <p className="text-center text-sm font-bold text-blue-600 mt-6 animate-pulse">
-                  {status}
+                  {result}
                 </p>
               )}
             </form>
