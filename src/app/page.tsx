@@ -11,39 +11,36 @@ export default function LandingPage() {
     e.preventDefault();
     setStatus("Отправка...");
 
-    const form = e.currentTarget;
+    const formData = new FormData(e.currentTarget);
+    const object = Object.fromEntries(formData);
 
-    // 1. Создаем обычный объект и вручную собираем данные
-    const formData = new FormData(form);
-    const object = {
-      access_key: "063b7fa1-296a-497a-b9c2-6d9259464e42",
-      name: formData.get("name"),
-      email: formData.get("email"),
-      message: formData.get("message"),
-    };
+    // Добавляем ключ в объект перед превращением в JSON
+    object.access_key = "063b7fa1-296a-497a-b9c2-6d9259464e42";
+
+    const json = JSON.stringify(object);
 
     try {
-      // 2. Отправляем строго через JSON с заголовками
-      const res = await fetch("https://api.web3forms.com", {
+      const response = await fetch("https://api.web3forms.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(object),
+        body: json,
       });
 
-      const result = await res.json();
+      const result = await response.json();
 
       if (result.success) {
         setStatus("Заявка успешно отправлена!");
-        form.reset();
+        (e.target as HTMLFormElement).reset();
       } else {
-        // Если ключ все равно не виден, выведем ошибку от сервера
+        // Выводим конкретную ошибку из документации
         setStatus("Ошибка: " + result.message);
       }
     } catch {
-      setStatus("Ошибка сети. Проверьте интернет или AdBlock.");
+      // Если даже по доке не идет — значит блокирует твой браузер/провайдер во Львовской обл.
+      setStatus("Ошибка сети. Проверьте интернет.");
     }
   };
 
