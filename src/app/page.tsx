@@ -14,6 +14,7 @@ export default function LandingPage() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    // Формируем объект данных строго по документации Web3Forms
     const data = {
       access_key: "063b7fa1-296a-497a-b9c2-6d9259464e42",
       name: formData.get("name"),
@@ -22,7 +23,8 @@ export default function LandingPage() {
     };
 
     try {
-      const res = await fetch("https://api.web3forms.com", {
+      // ИСПРАВЛЕНО: Полный URL с протоколом https://
+      const res = await fetch("api.web3forms.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,24 +39,21 @@ export default function LandingPage() {
         setStatus("Заявка успешно отправлена!");
         form.reset();
       } else {
-        // Если ключ не подошел или сервис отклонил
-        setStatus("Режим демо: Заявка принята!");
-        form.reset();
+        setStatus("Ошибка сервиса: " + (result.message || "проверьте ключ"));
       }
-    } catch {
-      // ИСПРАВЛЕНО: Убрали 'err', чтобы ESLint не ругался
-      // Если сеть заблокирована (CORS/AdBlock), имитируем успех для портфолио
-      setTimeout(() => {
-        setStatus("Заявка успешно отправлена!");
-        form.reset();
-      }, 1000);
+    } catch (error) {
+      // Если запрос даже не ушел (блокировка провайдером/AdBlock)
+      console.log("Network error details:", error);
+      setStatus("Ошибка сети. Проверьте интернет или AdBlock.");
     }
   };
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white">
       <header className="py-6 px-10 flex justify-between items-center border-b">
-        <div className="font-bold text-xl tracking-tighter">TECH.DEV</div>
+        <div className="font-bold text-xl tracking-tighter uppercase">
+          Tech.Agency
+        </div>
         <Button
           variant="ghost"
           onClick={() =>
@@ -63,20 +62,19 @@ export default function LandingPage() {
               ?.scrollIntoView({ behavior: "smooth" })
           }
         >
-          Контакты
+          Обсудить проект
         </Button>
       </header>
 
       <main className="grow">
-        {/* HERO SECTION */}
         <section className="py-24 px-6 text-center">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-slate-900 mb-6 italic">
             Сайты, которые{" "}
-            <span className="text-blue-600 underline">работают</span>
+            <span className="text-blue-600 underline">продают</span>
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10">
-            Next.js 15 + React Server Components. Профессиональная разработка
-            для вашего бизнеса в 2026 году.
+            Next.js 15 + Tailwind CSS. Профессиональная разработка для вашего
+            бизнеса.
           </p>
           <Button
             onClick={() =>
@@ -90,11 +88,10 @@ export default function LandingPage() {
           </Button>
         </section>
 
-        {/* CONTACT FORM */}
         <section id="contact" className="py-20 px-6 max-w-xl mx-auto w-full">
           <div className="bg-slate-50 p-10 rounded-[40px] border shadow-2xl">
             <h2 className="text-3xl font-bold text-center mb-8 text-slate-900">
-              Обсудить ваш проект
+              Оставить заявку
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
@@ -120,10 +117,10 @@ export default function LandingPage() {
                 type="submit"
                 className="w-full bg-slate-900 text-white py-8 rounded-xl hover:bg-slate-800 text-lg font-bold"
               >
-                {status || "Отправить заявку"}
+                {status === "Отправка..." ? "Отправляем..." : "Отправить"}
               </Button>
               {status && (
-                <p className="text-center text-sm font-bold text-blue-600 mt-6 animate-bounce">
+                <p className="text-center text-sm font-bold text-blue-600 mt-6 animate-pulse">
                   {status}
                 </p>
               )}
@@ -133,7 +130,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="py-10 border-t text-center text-slate-400 text-sm">
-        © 2026 • Next.js 15
+        © 2026 • Проект на Next.js 15
       </footer>
     </div>
   );
