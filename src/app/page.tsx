@@ -12,15 +12,25 @@ export default function LandingPage() {
     setStatus("Отправка...");
 
     const form = e.currentTarget;
-    const formData = new FormData(form);
 
-    // Вставляем ключ СТРОГО в formData
-    formData.append("access_key", "063b7fa1-296a-497a-b9c2-6d9259464e42");
+    // 1. Создаем обычный объект и вручную собираем данные
+    const formData = new FormData(form);
+    const object = {
+      access_key: "063b7fa1-296a-497a-b9c2-6d9259464e42",
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
 
     try {
+      // 2. Отправляем строго через JSON с заголовками
       const res = await fetch("https://api.web3forms.com", {
         method: "POST",
-        body: formData, // Отправляем как форму, а не как JSON
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(object),
       });
 
       const result = await res.json();
@@ -29,11 +39,11 @@ export default function LandingPage() {
         setStatus("Заявка успешно отправлена!");
         form.reset();
       } else {
+        // Если ключ все равно не виден, выведем ошибку от сервера
         setStatus("Ошибка: " + result.message);
       }
     } catch {
-      // Если даже так не вышло — значит, AdBlock во Львове реально зверствует
-      setStatus("Ошибка сети. Попробуйте на реальном сайте (Vercel).");
+      setStatus("Ошибка сети. Проверьте интернет или AdBlock.");
     }
   };
 
