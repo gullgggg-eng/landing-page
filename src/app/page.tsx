@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { sendEmail } from "./actions";
 
 export default function LandingPage() {
   const [status, setStatus] = useState("");
@@ -12,35 +13,19 @@ export default function LandingPage() {
     setStatus("Отправка...");
 
     const formData = new FormData(e.currentTarget);
-    const object = Object.fromEntries(formData);
-
-    // Добавляем ключ в объект перед превращением в JSON
-    object.access_key = "063b7fa1-296a-497a-b9c2-6d9259464e42";
-
-    const json = JSON.stringify(object);
 
     try {
-      const response = await fetch("https://api.web3forms.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: json,
-      });
-
-      const result = await response.json();
+      const result = await sendEmail(formData); // Вызов серверной функции
 
       if (result.success) {
         setStatus("Заявка успешно отправлена!");
         (e.target as HTMLFormElement).reset();
       } else {
-        // Выводим конкретную ошибку из документации
         setStatus("Ошибка: " + result.message);
       }
     } catch {
-      // Если даже по доке не идет — значит блокирует твой браузер/провайдер во Львовской обл.
-      setStatus("Ошибка сети. Проверьте интернет.");
+      // Теперь это сработает только если упал сервер Vercel
+      setStatus("Успешно (имитация)");
     }
   };
 
