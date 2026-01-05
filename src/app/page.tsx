@@ -18,7 +18,7 @@ export default function LandingPage() {
     formData.append("access_key", "063b7fa1-296a-497a-b9c2-6d9259464e42");
 
     try {
-      const res = await fetch("api.web3forms.com", {
+      const res = await fetch("https://api.web3forms.com", {
         method: "POST",
         body: formData, // Отправляем как форму, а не как JSON
       });
