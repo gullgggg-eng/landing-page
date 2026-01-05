@@ -24,7 +24,7 @@ export default function LandingPage() {
 
     try {
       // ИСПРАВЛЕНО: Полный URL с протоколом https://
-      const res = await fetch("api.web3forms.com", {
+      const res = await fetch("https://api.web3forms.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
