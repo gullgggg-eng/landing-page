@@ -14,23 +14,13 @@ export default function LandingPage() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    // Формируем объект данных строго по документации Web3Forms
-    const data = {
-      access_key: "063b7fa1-296a-497a-b9c2-6d9259464e42",
-      name: formData.get("name"),
-      email: formData.get("email"),
-      message: formData.get("message"),
-    };
+    // Вставляем ключ СТРОГО в formData
+    formData.append("access_key", "063b7fa1-296a-497a-b9c2-6d9259464e42");
 
     try {
-      // ИСПРАВЛЕНО: Полный URL с протоколом https://
-      const res = await fetch("https://api.web3forms.com", {
+      const res = await fetch("api.web3forms.com", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(data),
+        body: formData, // Отправляем как форму, а не как JSON
       });
 
       const result = await res.json();
@@ -39,12 +29,11 @@ export default function LandingPage() {
         setStatus("Заявка успешно отправлена!");
         form.reset();
       } else {
-        setStatus("Ошибка сервиса: " + (result.message || "проверьте ключ"));
+        setStatus("Ошибка: " + result.message);
       }
-    } catch (error) {
-      // Если запрос даже не ушел (блокировка провайдером/AdBlock)
-      console.log("Network error details:", error);
-      setStatus("Ошибка сети. Проверьте интернет или AdBlock.");
+    } catch {
+      // Если даже так не вышло — значит, AdBlock во Львове реально зверствует
+      setStatus("Ошибка сети. Попробуйте на реальном сайте (Vercel).");
     }
   };
 
